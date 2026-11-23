@@ -1,113 +1,60 @@
-import { useEffect, useState } from 'react';
+const stats = [
+    { label: 'Total Siswa', value: '240', note: '+12 bulan ini' },
+    { label: 'Laki-laki', value: '112', note: '46,7%' },
+    { label: 'Perempuan', value: '128', note: '53,3%' },
+];
 
-function CountUp({ value }) {
-    const [display, setDisplay] = useState(value);
+const activity = [
+    { title: 'Data siswa diperbarui', meta: 'Hari ini, 09:42' },
+    { title: '12 siswa ditambahkan', meta: 'Kemarin, 16:10' },
+    { title: 'Laporan kehadiran dibuat', meta: '20 Nov 2026' },
+];
 
-    useEffect(() => {
-        let frame;
-        const start = performance.now();
-        const duration = 900;
-
-        const tick = (now) => {
-            const progress = Math.min((now - start) / duration, 1);
-            setDisplay(Math.round(value * (1 - Math.pow(1 - progress, 3))));
-            if (progress < 1) frame = requestAnimationFrame(tick);
-        };
-
-        frame = requestAnimationFrame(tick);
-
-        return () => cancelAnimationFrame(frame);
-    }, [value]);
-
-    return display;
-}
-
-export default function Dashboard({ siswa }) {
-    const total = siswa.length;
-    const laki = siswa.filter((s) => s.jk === 'L').length;
-    const perempuan = siswa.filter((s) => s.jk === 'P').length;
-
-    const radius = 76;
-    const circumference = 2 * Math.PI * radius;
-    const lakiLength = total ? circumference * (laki / total) : 0;
-    const perempuanLength = total ? circumference * (perempuan / total) : 0;
-    const lakiDegrees = total ? 360 * (laki / total) : 0;
-
+export default function Dashboard() {
     return (
         <>
-            <div className="page-head">
-                <p className="eyebrow">Jurusan RPL</p>
-                <h1 className="page-title">Dashboard</h1>
-            </div>
-
-            <section className="panel stats-panel" aria-label="Ringkasan siswa">
-                <div className="stat">
-                    <p className="stat-label">Total Siswa</p>
-                    <p className="stat-value"><CountUp value={total} /></p>
+            <header className="dash-header">
+                <div className="wrap dash-header-inner">
+                    <span className="dash-brand">
+                        <span className="brand-mark">HP</span>
+                        Hermes Project
+                    </span>
+                    <span className="dash-status"><span className="dot" /> Online</span>
                 </div>
-                <div className="stat">
-                    <p className="stat-label">Laki-laki</p>
-                    <p className="stat-value"><CountUp value={laki} /></p>
+            </header>
+
+            <main className="wrap dash-main">
+                <div className="dash-head">
+                    <p className="dash-eyebrow">Overview</p>
+                    <h1 className="dash-title">Dashboard</h1>
                 </div>
-                <div className="stat">
-                    <p className="stat-label">Perempuan</p>
-                    <p className="stat-value"><CountUp value={perempuan} /></p>
-                </div>
-            </section>
 
-            <section className="panel chart-panel" aria-label="Perbandingan jenis kelamin">
-                <p className="section-label">Perbandingan Jenis Kelamin</p>
+                <section className="stats-grid" aria-label="Ringkasan">
+                    {stats.map((stat) => (
+                        <article className="panel stat-card" key={stat.label}>
+                            <p className="stat-label">{stat.label}</p>
+                            <p className="stat-value">{stat.value}</p>
+                            <p className="stat-note">{stat.note}</p>
+                        </article>
+                    ))}
+                </section>
 
-                <div className="chart-body">
-                    <div className="donut-wrap">
-                        <svg className="donut" viewBox="0 0 200 200" role="img"
-                             aria-label={`Laki-laki ${laki} siswa, perempuan ${perempuan} siswa`}>
-                            <defs>
-                                <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse"
-                                         patternTransform={`rotate(${135 - lakiDegrees})`}>
-                                    <rect width="8" height="8" fill="#FFFFFF" />
-                                    <line x1="4" y1="0" x2="4" y2="8" stroke="#0A0A0A" strokeWidth="2" />
-                                </pattern>
-                            </defs>
-
-                            <circle className="donut-track" cx="100" cy="100" r={radius} />
-
-                            <circle className="donut-seg donut-seg-l" cx="100" cy="100" r={radius}
-                                    strokeDasharray={`${lakiLength} ${circumference}`}
-                                    strokeDashoffset={lakiLength}
-                                    style={{ '--dash': lakiLength }}
-                                    transform="rotate(-90 100 100)">
-                                <title>Laki-laki: {laki} siswa</title>
-                            </circle>
-
-                            <circle className="donut-seg donut-seg-p" cx="100" cy="100" r={radius}
-                                    stroke="url(#hatch)"
-                                    strokeDasharray={`${perempuanLength} ${circumference}`}
-                                    strokeDashoffset={perempuanLength}
-                                    style={{ '--dash': perempuanLength }}
-                                    transform={`rotate(${-90 + lakiDegrees} 100 100)`}>
-                                <title>Perempuan: {perempuan} siswa</title>
-                            </circle>
-
-                            <text className="donut-number" x="100" y="96">{total}</text>
-                            <text className="donut-caption" x="100" y="118">SISWA</text>
-                        </svg>
+                <section className="panel dash-panel">
+                    <div className="panel-head">
+                        <h2>Aktivitas Terbaru</h2>
+                        <span className="panel-tag">DEMO</span>
                     </div>
-
-                    <div className="chart-legend">
-                        <div className="legend-item">
-                            <span className="legend-swatch legend-swatch-l" aria-hidden="true" />
-                            <span className="legend-label">Laki-laki</span>
-                            <span className="legend-value">{laki}</span>
-                        </div>
-                        <div className="legend-item">
-                            <span className="legend-swatch legend-swatch-p" aria-hidden="true" />
-                            <span className="legend-label">Perempuan</span>
-                            <span className="legend-value">{perempuan}</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    <ul className="activity-list">
+                        {activity.map((item) => (
+                            <li key={item.title}>
+                                <span className="activity-dot" />
+                                <span className="activity-title">{item.title}</span>
+                                <time>{item.meta}</time>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            </main>
         </>
     );
 }
